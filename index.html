@@ -255,34 +255,75 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy-deep);color:var(--wh
     </div>
   </div>
 
-  <!-- T3: SEGUIMIENTO -->
+  <!-- T3: REPORTE DEL DIA -->
   <div class="tool-area">
     <div class="tool-header" onclick="toggleTool('t3')">
       <div class="tool-header-left">
         <div class="tool-num">3</div>
-        <div><div class="tool-name">Seguimiento de Clientes del Dia</div><div class="tool-desc-short">A quien llame? Quien queda pendiente?</div></div>
+        <div><div class="tool-name">Generador de Reporte del Dia</div><div class="tool-desc-short">Resumen de tu actividad listo para copiar y enviar al jefe o guardarlo</div></div>
       </div>
       <div class="tool-toggle" id="toggle-t3"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
     </div>
     <div class="tool-body" id="body-t3">
-      <div class="seg-resumen">
-        <div class="seg-stat"><div class="seg-stat-num" id="s-total">0</div><div class="seg-stat-lbl">Total</div></div>
-        <div class="seg-stat"><div class="seg-stat-num" id="s-pend" style="color:#F5A623">0</div><div class="seg-stat-lbl">Pendientes</div></div>
-        <div class="seg-stat"><div class="seg-stat-num" id="s-ok" style="color:#5eca88">0</div><div class="seg-stat-lbl">Contactados</div></div>
-        <div class="seg-stat"><div class="seg-stat-num" id="s-urg" style="color:#ff7070">0</div><div class="seg-stat-lbl">Urgentes</div></div>
+      <p style="font-size:0.83rem;color:var(--text-lighter);margin-bottom:20px;">Llena lo que hiciste hoy y genera un reporte profesional en segundos.</p>
+      <div class="calc-grid">
+        <div class="field-group">
+          <label class="field-label">Tu nombre</label>
+          <input class="field-input" id="r-nombre" placeholder="Ej: Carlos Mamani">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Fecha</label>
+          <input class="field-input" id="r-fecha" placeholder="Ej: 5 de junio 2025">
+        </div>
       </div>
-      <div class="seg-form">
-        <input class="seg-input" id="seg-nombre" placeholder="Nombre del cliente" style="flex:2">
-        <input class="seg-input" id="seg-accion" placeholder="Que hacer?" style="flex:2">
-        <select class="seg-select" id="seg-estado">
-          <option value="pendiente">Pendiente</option>
-          <option value="urgente">Urgente</option>
-          <option value="llamado">Contactado</option>
-        </select>
-        <button class="btn-add" onclick="agregarCliente()">+ Agregar</button>
+      <div class="calc-grid">
+        <div class="field-group">
+          <label class="field-label">Llamadas / contactos realizados</label>
+          <input class="field-input" id="r-llamadas" type="number" placeholder="Ej: 12">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Visitas o reuniones</label>
+          <input class="field-input" id="r-visitas" type="number" placeholder="Ej: 3">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Propuestas enviadas</label>
+          <input class="field-input" id="r-propuestas" type="number" placeholder="Ej: 2">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Ventas cerradas hoy</label>
+          <input class="field-input" id="r-ventas" type="number" placeholder="Ej: 1">
+        </div>
       </div>
-      <div class="clientes-lista" id="clientes-lista">
-        <div class="seg-empty">Agrega tus clientes del dia aqui</div>
+      <div class="calc-grid">
+        <div class="field-group">
+          <label class="field-label">Monto vendido hoy (Bs.)</label>
+          <input class="field-input" id="r-monto" type="number" placeholder="Ej: 4500">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Prospectos calientes para maniana</label>
+          <input class="field-input" id="r-prospectos" placeholder="Ej: Juan Perez, Maria Lopez">
+        </div>
+      </div>
+      <div class="field-group" style="margin-bottom:20px;">
+        <label class="field-label">Logro destacado del dia (opcional)</label>
+        <input class="field-input" id="r-logro" placeholder="Ej: Reactive un cliente que no respondia hace 3 semanas">
+      </div>
+      <div class="field-group" style="margin-bottom:20px;">
+        <label class="field-label">Obstaculo o dificultad encontrada (opcional)</label>
+        <input class="field-input" id="r-obstaculo" placeholder="Ej: Muchos clientes pidieron descuento">
+      </div>
+      <button class="btn-calc" onclick="generarReporte()">Generar Reporte</button>
+      <div class="msg-output" id="reporte-output">
+        <div class="msg-text" id="reporte-text"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-copy" onclick="copiarReporte()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copiar reporte
+          </button>
+          <button class="btn-copy" onclick="limpiarReporte()" style="border-color:rgba(255,100,100,0.3);color:#ff9090;">
+            Nuevo reporte
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -639,37 +680,58 @@ function showObjeciones(tipo,btn){
   document.getElementById('respuestas-box').classList.remove('hidden');
 }
 
-var clientes=[];
-function agregarCliente(){
-  var n=document.getElementById('seg-nombre').value.trim();
-  var a=document.getElementById('seg-accion').value.trim();
-  var e=document.getElementById('seg-estado').value;
-  if(!n)return;
-  clientes.push({n:n,a:a,e:e,id:Date.now()});
-  document.getElementById('seg-nombre').value='';
-  document.getElementById('seg-accion').value='';
-  renderClientes();
+function generarReporte(){
+  var nombre = document.getElementById('r-nombre').value.trim() || 'Vendedor';
+  var fecha   = document.getElementById('r-fecha').value.trim()  || 'Hoy';
+  var llamadas  = document.getElementById('r-llamadas').value   || '0';
+  var visitas   = document.getElementById('r-visitas').value    || '0';
+  var propuestas= document.getElementById('r-propuestas').value || '0';
+  var ventas    = document.getElementById('r-ventas').value     || '0';
+  var monto     = document.getElementById('r-monto').value      || '0';
+  var prospectos= document.getElementById('r-prospectos').value.trim();
+  var logro     = document.getElementById('r-logro').value.trim();
+  var obstaculo = document.getElementById('r-obstaculo').value.trim();
+
+  var montoFmt = parseFloat(monto).toLocaleString('es-BO');
+
+  var reporte = 'REPORTE DE ACTIVIDAD DIARIA\n';
+  reporte += '================================\n';
+  reporte += 'Vendedor : ' + nombre + '\n';
+  reporte += 'Fecha    : ' + fecha  + '\n';
+  reporte += '================================\n\n';
+  reporte += 'ACTIVIDAD DEL DIA\n';
+  reporte += '- Llamadas / contactos : ' + llamadas   + '\n';
+  reporte += '- Visitas / reuniones  : ' + visitas    + '\n';
+  reporte += '- Propuestas enviadas  : ' + propuestas + '\n';
+  reporte += '- Ventas cerradas      : ' + ventas     + '\n';
+  reporte += '- Monto vendido        : Bs. ' + montoFmt + '\n';
+
+  if(prospectos){
+    reporte += '\nPROSPECTOS CALIENTES PARA MANIANA\n';
+    reporte += '- ' + prospectos + '\n';
+  }
+
+  if(logro){
+    reporte += '\nLOGRO DESTACADO\n';
+    reporte += logro + '\n';
+  }
+
+  if(obstaculo){
+    reporte += '\nOBSTACULO / APRENDIZAJE\n';
+    reporte += obstaculo + '\n';
+  }
+
+  reporte += '\n================================';
+
+  document.getElementById('reporte-text').textContent = reporte;
+  document.getElementById('reporte-output').style.display = 'block';
 }
-function renderClientes(){
-  var lista=document.getElementById('clientes-lista');
-  if(clientes.length===0){lista.innerHTML='<div class="seg-empty">Agrega tus clientes del dia aqui</div>';actualizarStats();return;}
-  lista.innerHTML='';
-  clientes.forEach(function(c){
-    var d=document.createElement('div');
-    d.className='cliente-item'+(c.e==='llamado'?' llamado':'');
-    var dc=c.e==='urgente'?'dot-urgente':c.e==='llamado'?'dot-llamado':'dot-pendiente';
-    d.innerHTML='<div class="estado-dot '+dc+'"></div><div class="cliente-nombre">'+c.n+'</div><div class="cliente-accion">'+(c.a||'')+'</div><div class="cliente-btns">'+(c.e!=='llamado'?'<button class="btn-small btn-done" onclick="marcarLlamado('+c.id+')">Listo</button>':'')+'<button class="btn-small btn-del" onclick="eliminarCliente('+c.id+')">X</button></div>';
-    lista.appendChild(d);
+function copiarReporte(){copyText(document.getElementById('reporte-text').textContent);}
+function limpiarReporte(){
+  ['r-nombre','r-fecha','r-llamadas','r-visitas','r-propuestas','r-ventas','r-monto','r-prospectos','r-logro','r-obstaculo'].forEach(function(id){
+    document.getElementById(id).value='';
   });
-  actualizarStats();
-}
-function marcarLlamado(id){var c=clientes.find(function(x){return x.id===id;});if(c)c.e='llamado';renderClientes();}
-function eliminarCliente(id){clientes=clientes.filter(function(x){return x.id!==id;});renderClientes();}
-function actualizarStats(){
-  document.getElementById('s-total').textContent=clientes.length;
-  document.getElementById('s-pend').textContent=clientes.filter(function(c){return c.e==='pendiente';}).length;
-  document.getElementById('s-ok').textContent=clientes.filter(function(c){return c.e==='llamado';}).length;
-  document.getElementById('s-urg').textContent=clientes.filter(function(c){return c.e==='urgente';}).length;
+  document.getElementById('reporte-output').style.display='none';
 }
 
 var MSGS={
