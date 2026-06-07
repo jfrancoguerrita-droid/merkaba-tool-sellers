@@ -1,0 +1,9 @@
+{
+  "name": "kit-vendedor-merkaba",
+  "version": "1.0.0",
+  "description": "Kit del Vendedor con acceso protegido",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^10.7.9"
+  }
+}
